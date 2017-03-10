@@ -1962,6 +1962,12 @@ function coerceKeyPath(keyPath) {
   );
 }
 
+var KEYPATH_DELIMITER = '.';
+
+function splitKeyPath(keyPath) {
+  return keyPath.split(KEYPATH_DELIMITER);
+}
+
 function invariant(condition, error) {
   if (!condition) { throw new Error(error); }
 }
@@ -2033,6 +2039,10 @@ var Map = (function (KeyedCollection$$1) {
     return this.updateIn(keyPath, NOT_SET, function () { return v; });
   };
 
+  Map.prototype.setAt = function setAt (keyPath, v) {
+    return this.setIn(splitKeyPath(keyPath), v);
+  };
+
   Map.prototype.remove = function remove (k) {
     return updateMap(this, k, NOT_SET);
   };
@@ -2043,6 +2053,10 @@ var Map = (function (KeyedCollection$$1) {
       var lastKey = keyPath.pop();
       return this.updateIn(keyPath, function (c) { return c && c.remove(lastKey); });
     }
+  };
+
+  Map.prototype.deleteAt = function deleteAt (keyPath) {
+    return this.deleteIn(splitKeyPath(keyPath));
   };
 
   Map.prototype.deleteAll = function deleteAll (keys) {
@@ -2076,6 +2090,10 @@ var Map = (function (KeyedCollection$$1) {
       updater
     );
     return updatedValue === NOT_SET ? notSetValue : updatedValue;
+  };
+
+  Map.prototype.updateAt = function updateAt (keyPath, notSetValue, updater) {
+    return this.updateIn(splitKeyPath(keyPath), notSetValue, updater);
   };
 
   Map.prototype.clear = function clear () {
@@ -2118,6 +2136,13 @@ var Map = (function (KeyedCollection$$1) {
     );
   };
 
+  Map.prototype.mergeAt = function mergeAt (keyPath) {
+    var iters = [], len = arguments.length - 1;
+    while ( len-- > 0 ) iters[ len ] = arguments[ len + 1 ];
+
+    return this.mergeIn.apply(this, [splitKeyPath(keyPath)].concat(iters));
+  };
+
   Map.prototype.mergeDeep = function mergeDeep (/*...iters*/) {
     return mergeIntoMapWith(this, deepMerger, arguments);
   };
@@ -2140,6 +2165,13 @@ var Map = (function (KeyedCollection$$1) {
           ? m.mergeDeep.apply(m, iters)
           : iters[iters.length - 1]; }
     );
+  };
+
+  Map.prototype.mergeDeepAt = function mergeDeepAt (keyPath) {
+    var iters = [], len = arguments.length - 1;
+    while ( len-- > 0 ) iters[ len ] = arguments[ len + 1 ];
+
+    return this.mergeDeepIn.apply(this, [splitKeyPath(keyPath)].concat(iters));
   };
 
   Map.prototype.sort = function sort (comparator) {
@@ -2221,6 +2253,7 @@ var MapPrototype = Map.prototype;
 MapPrototype[IS_MAP_SENTINEL] = true;
 MapPrototype[DELETE] = MapPrototype.remove;
 MapPrototype.removeIn = MapPrototype.deleteIn;
+MapPrototype.removeAt = MapPrototype.deleteAt;
 MapPrototype.removeAll = MapPrototype.deleteAll;
 
 // #pragma Trie Nodes
@@ -3143,11 +3176,16 @@ var ListPrototype = List.prototype;
 ListPrototype[IS_LIST_SENTINEL] = true;
 ListPrototype[DELETE] = ListPrototype.remove;
 ListPrototype.setIn = MapPrototype.setIn;
+ListPrototype.setAt = MapPrototype.setAt;
 ListPrototype.deleteIn = (ListPrototype.removeIn = MapPrototype.removeIn);
+ListPrototype.deleteAt = (ListPrototype.removeAt = MapPrototype.removeAt);
 ListPrototype.update = MapPrototype.update;
 ListPrototype.updateIn = MapPrototype.updateIn;
+ListPrototype.updateAt = MapPrototype.updateAt;
 ListPrototype.mergeIn = MapPrototype.mergeIn;
+ListPrototype.mergeAt = MapPrototype.mergeAt;
 ListPrototype.mergeDeepIn = MapPrototype.mergeDeepIn;
+ListPrototype.mergeDeepAt = MapPrototype.mergeDeepAt;
 ListPrototype.withMutations = MapPrototype.withMutations;
 ListPrototype.asMutable = MapPrototype.asMutable;
 ListPrototype.asImmutable = MapPrototype.asImmutable;
@@ -4723,6 +4761,10 @@ mixin(Iterable, {
     // return nested;
   },
 
+  getAt: function getAt(searchKeyPath, notSetValue) {
+    return this.getIn(splitKeyPath(searchKeyPath), notSetValue);
+  },
+
   groupBy: function groupBy(grouper, context) {
     return groupByFactory(this, grouper, context);
   },
@@ -4733,6 +4775,10 @@ mixin(Iterable, {
 
   hasIn: function hasIn(searchKeyPath) {
     return this.getIn(searchKeyPath, NOT_SET) !== NOT_SET;
+  },
+
+  hasAt: function hasAt(searchKeyPath) {
+    return this.hasIn(splitKeyPath(searchKeyPath));
   },
 
   isSubset: function isSubset(iter) {

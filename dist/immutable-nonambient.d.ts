@@ -550,6 +550,15 @@
     setIn(keyPath: Iterable<any, any>, value: any): this;
 
     /**
+     * Same as `setIn` but takes `keyPath` as dot-notation String ```('foo.list.0.bar')```.
+     *
+     * `keyPath`: ```'3.0' => ['3', '0'] // In```
+     *
+     * @see `setIn`
+     */
+    setAt(keyPath: String, value: any): this;
+
+    /**
      * Returns a new List having removed the value at this `keyPath`. If any
      * keys in `keyPath` do not exist, no change will occur.
      *
@@ -566,6 +575,17 @@
     deleteIn(keyPath: Iterable<any, any>): this;
     removeIn(keyPath: Array<any>): this;
     removeIn(keyPath: Iterable<any, any>): this;
+
+    /**
+     * Same as `deleteIn` but takes `keyPath` as dot-notation String ```('foo.list.0.bar')```.
+     *
+     * `keyPath`: ```'3.1' => ['3', '1'] // In```
+     *
+     * @alias removeAt
+     * @see `deleteIn`
+     */
+    deleteAt(keyPath: String): this;
+    removeAt(keyPath: String): this;
 
     /**
      * Note: `updateIn` can be used in `withMutations`.
@@ -592,11 +612,28 @@
     ): this;
 
     /**
+     * @see `Map#updateAt`
+     */
+    updateAt(
+      keyPath: String,
+      notSetValue: any,
+      updater: (value: any) => any
+    ): this;
+    updateAt(
+      keyPath: String,
+      updater: (value: any) => any
+    ): this;
+
+    /**
      * Note: `mergeIn` can be used in `withMutations`.
      *
      * @see `Map#mergeIn`
      */
     mergeIn(keyPath: Array<any> | Iterable<any, any>, ...iterables: Array<any>): this;
+    /**
+     * @see `Map#mergeAt`
+     */
+    mergeAt(keyPath: String, ...iterables: Array<any>): this;
 
     /**
      * Note: `mergeDeepIn` can be used in `withMutations`.
@@ -604,6 +641,10 @@
      * @see `Map#mergeDeepIn`
      */
     mergeDeepIn(keyPath: Array<any> | Iterable<any, any>, ...iterables: Array<any>): this;
+    /**
+     * @see `Map#mergeDeepAt`
+     */
+    mergeDeepAt(keyPath: String, ...iterables: Array<any>): this;
 
     // Transient changes
 
@@ -1001,6 +1042,14 @@
      */
     setIn(keyPath: Array<any>, value: any): this;
     setIn(KeyPath: Iterable<any, any>, value: any): this;
+    /**
+     * Same as `setIn` but takes `keyPath` as dot-notation String ```('foo.list.0.bar')```.
+     *
+     * `keyPath`: ```'subObject.subKey' => ['subObject', 'subKey'] // In```
+     *
+     * @see `setIn`
+     */
+    setAt(KeyPath: String, value: any): this;
 
     /**
      * Returns a new Map having removed the value at this `keyPath`. If any keys
@@ -1014,6 +1063,17 @@
     deleteIn(keyPath: Iterable<any, any>): this;
     removeIn(keyPath: Array<any>): this;
     removeIn(keyPath: Iterable<any, any>): this;
+
+    /**
+     * Same as `deleteIn` but takes `keyPath` as dot-notation String ```('foo.list.0.bar')```.
+     *
+     * `keyPath`: ```'subObject.subKey' => ['subObject', 'subKey'] // In```
+     *
+     * @alias removeAt
+     * @see `deleteIn`
+     */
+    deleteAt(keyPath: String): this;
+    removeAt(keyPath: String): this;
 
     /**
      * Returns a new Map having applied the `updater` to the entry found at the
@@ -1085,6 +1145,23 @@
     ): this;
 
     /**
+     * Same as `updateIn` but takes `keyPath` as dot-notation String ```('foo.list.0.bar')```.
+     *
+     * `keyPath`: ```'inMap.inList' => ['inMap', 'inList'] // In```
+     *
+     * @see `updateIn`
+     */
+    updateAt(
+      keyPath: String,
+      notSetValue: any,
+      updater: (value: any) => any
+    ): this;
+    updateAt(
+      keyPath: String,
+      updater: (value: any) => any
+    ): this;
+
+    /**
      * A combination of `updateIn` and `merge`, returning a new Map, but
      * performing the merge at a point arrived at by following the keyPath.
      * In other words, these two lines are equivalent:
@@ -1097,6 +1174,15 @@
     mergeIn(keyPath: Array<any> | Iterable<any, any>, ...iterables: Array<any>): this;
 
     /**
+     * Same as `mergeIn` but takes `keyPath` as dot-notation String ```('foo.list.0.bar')```.
+     *
+     * `keyPath`: ```'subObject.subKey' => ['subObject', 'subKey'] // In```
+     *
+     * @see `mergeIn`
+     */
+    mergeAt(keyPath: String, ...iterables: Array<any>): this;
+
+    /**
      * A combination of `updateIn` and `mergeDeep`, returning a new Map, but
      * performing the deep merge at a point arrived at by following the keyPath.
      * In other words, these two lines are equivalent:
@@ -1107,6 +1193,15 @@
      * Note: `mergeDeepIn` can be used in `withMutations`.
      */
     mergeDeepIn(keyPath: Array<any> | Iterable<any, any>, ...iterables: Array<any>): this;
+
+    /**
+     * Same as `mergeDeepIn` but takes `keyPath` as dot-notation String ```('foo.list.0.bar')```.
+     *
+     * `keyPath`: ```'subObject.subKey' => ['subObject', 'subKey'] // In```
+     *
+     * @see `mergeDeepIn`
+     */
+    mergeDeepAt(keyPath: String, ...iterables: Array<any>): this;
 
     // Transient changes
 
@@ -1860,15 +1955,24 @@
       // Deep persistent changes
 
       setIn(keyPath: Array<any> | Iterable<any, any>, value: any): this;
+      setAt(keyPath: String, value: any): this;
       updateIn(keyPath: Array<any> | Iterable<any, any>, updater: (value: any) => any): this;
+      updateAt(keyPath: String, updater: (value: any) => any): this;
       mergeIn(keyPath: Array<any> | Iterable<any, any>, ...iterables: Array<any>): this;
+      mergeAt(keyPath: String, ...iterables: Array<any>): this;
       mergeDeepIn(keyPath: Array<any> | Iterable<any, any>, ...iterables: Array<any>): this;
+      mergeDeepAt(keyPath: String, ...iterables: Array<any>): this;
 
       /**
        * @alias removeIn
        */
       deleteIn(keyPath: Array<any> | Iterable<any, any>): this;
       removeIn(keyPath: Array<any> | Iterable<any, any>): this;
+      /**
+       * @alias removeAt
+       */
+      deleteAt(keyPath: String): this;
+      removeAt(keyPath: String): this;
 
       // Conversion to JavaScript types
 
@@ -2790,11 +2894,29 @@
     getIn(searchKeyPath: Iterable<any, any>, notSetValue?: any): any;
 
     /**
+     * Same as `getIn` but takes `keyPath` as dot-notation String ```('foo.list.0.bar')```.
+     *
+     * `keyPath`: ```'3.0' => ['3', '0'] // In```
+     *
+     * @see `getIn`
+     */
+    getAt(searchKeyPath: String, notSetValue?: any): any;
+
+    /**
      * True if the result of following a path of keys or indices through nested
      * Iterables results in a set value.
      */
     hasIn(searchKeyPath: Array<any>): boolean;
     hasIn(searchKeyPath: Iterable<any, any>): boolean;
+
+    /**
+     * Same as `hasIn` but takes `keyPath` as dot-notation String ```('foo.list.0.bar')```.
+     *
+     * `keyPath`: ```'3.0' => ['3', '0'] // In```
+     *
+     * @see `hasIn`
+     */
+    hasAt(searchKeyPath: String): boolean;
 
     // Persistent changes
 

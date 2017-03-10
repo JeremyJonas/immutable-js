@@ -45,7 +45,7 @@ import {
 } from './Iterator';
 
 import assertNotInfinite from './utils/assertNotInfinite';
-import coerceKeyPath from './utils/coerceKeyPath';
+import coerceKeyPath, { splitKeyPath } from './utils/coerceKeyPath';
 import deepEqual from './utils/deepEqual';
 import mixin from './utils/mixin';
 import quoteString from './utils/quoteString';
@@ -421,6 +421,10 @@ mixin(Iterable, {
     // return nested;
   },
 
+  getAt(searchKeyPath, notSetValue) {
+    return this.getIn(splitKeyPath(searchKeyPath), notSetValue);
+  },
+
   groupBy(grouper, context) {
     return groupByFactory(this, grouper, context);
   },
@@ -431,6 +435,10 @@ mixin(Iterable, {
 
   hasIn(searchKeyPath) {
     return this.getIn(searchKeyPath, NOT_SET) !== NOT_SET;
+  },
+
+  hasAt(searchKeyPath) {
+    return this.hasIn(splitKeyPath(searchKeyPath));
   },
 
   isSubset(iter) {

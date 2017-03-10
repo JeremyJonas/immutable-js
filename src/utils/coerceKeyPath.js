@@ -21,3 +21,9 @@ export default function coerceKeyPath(keyPath) {
     'Invalid keyPath: expected Ordered Iterable or Array: ' + keyPath
   );
 }
+
+export const KEYPATH_DELIMITER = '.';
+
+export function splitKeyPath(keyPath) {
+  return keyPath.split(KEYPATH_DELIMITER);
+}

@@ -784,4 +784,52 @@ describe('List', () => {
 
   });
 
+  describe('*At methods match *In equivalent', () => {
+    it('setAt matches setIn', () => {
+      var v = List([
+        Map({
+          aKey: List([
+            "bad",
+            "good"
+          ])
+        })
+      ]);
+      expect(v.getAt('0.aKey.1')).toBe(v.getIn([0, 'aKey', 1]));
+      var vIn = v.setIn([0, 'aKey', 1], "great");
+      v = v.setAt('0.aKey.1', "great");
+      expect(v.toJS()).toEqual(vIn.toJS());
+      expect(v.getAt('0.aKey.1')).toBe(v.getIn([0, 'aKey', 1]));
+    });
+
+    it('updateAt matches updateIn', () => {
+      var v = List([
+        Map({
+          aKey: List([
+            "bad",
+            "good"
+          ])
+        })
+      ]);
+      var vIn = v.updateIn([0, 'aKey', 1], v => v + v);
+      v = v.updateAt('0.aKey.1', v => v + v);
+      expect(v.toJS()).toEqual(vIn.toJS());
+    });
+
+    it('hasAt matches hasIn', () => {
+      var list = List([
+        "a",
+        "b",
+        Map({
+          aKey: "aValue"
+        })
+      ])
+      expect(list.hasAt('0')).toBe(list.hasIn(['0']));
+      expect(list.hasAt('3')).toBe(list.hasIn(['3']));
+      expect(list.hasAt('2.aKey')).toBe(list.hasIn([2, 'aKey']));
+
+      expect(() => list.hasAt('0.nothing')).toThrow()
+      expect(() => list.hasIn([0, 'nothing'])).toThrow()
+    });
+  });
+
 });

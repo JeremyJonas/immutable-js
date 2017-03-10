@@ -28,7 +28,7 @@ import {
 import { hash } from './Hash';
 import { Iterator, iteratorValue, iteratorDone } from './Iterator';
 import { sortFactory } from './Operations';
-import coerceKeyPath from './utils/coerceKeyPath';
+import coerceKeyPath, { splitKeyPath } from './utils/coerceKeyPath';
 import assertNotInfinite from './utils/assertNotInfinite';
 import quoteString from './utils/quoteString';
 
@@ -82,6 +82,10 @@ export class Map extends KeyedCollection {
     return this.updateIn(keyPath, NOT_SET, () => v);
   }
 
+  setAt(keyPath, v) {
+    return this.setIn(splitKeyPath(keyPath), v);
+  }
+
   remove(k) {
     return updateMap(this, k, NOT_SET);
   }
@@ -92,6 +96,10 @@ export class Map extends KeyedCollection {
       var lastKey = keyPath.pop();
       return this.updateIn(keyPath, c => c && c.remove(lastKey));
     }
+  }
+
+  deleteAt(keyPath) {
+    return this.deleteIn(splitKeyPath(keyPath));
   }
 
   deleteAll(keys) {
@@ -125,6 +133,10 @@ export class Map extends KeyedCollection {
       updater
     );
     return updatedValue === NOT_SET ? notSetValue : updatedValue;
+  }
+
+  updateAt(keyPath, notSetValue, updater) {
+    return this.updateIn(splitKeyPath(keyPath), notSetValue, updater);
   }
 
   clear() {
@@ -162,6 +174,10 @@ export class Map extends KeyedCollection {
     );
   }
 
+  mergeAt(keyPath, ...iters) {
+    return this.mergeIn.apply(this, [splitKeyPath(keyPath)].concat(iters));
+  }
+
   mergeDeep(/*...iters*/) {
     return mergeIntoMapWith(this, deepMerger, arguments);
   }
@@ -179,6 +195,10 @@ export class Map extends KeyedCollection {
           ? m.mergeDeep.apply(m, iters)
           : iters[iters.length - 1]
     );
+  }
+
+  mergeDeepAt(keyPath, ...iters) {
+    return this.mergeDeepIn.apply(this, [splitKeyPath(keyPath)].concat(iters));
   }
 
   sort(comparator) {
@@ -256,6 +276,7 @@ export var MapPrototype = Map.prototype;
 MapPrototype[IS_MAP_SENTINEL] = true;
 MapPrototype[DELETE] = MapPrototype.remove;
 MapPrototype.removeIn = MapPrototype.deleteIn;
+MapPrototype.removeAt = MapPrototype.deleteAt;
 MapPrototype.removeAll = MapPrototype.deleteAll;
 
 // #pragma Trie Nodes

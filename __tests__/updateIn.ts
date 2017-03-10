@@ -331,4 +331,53 @@ describe('updateIn', () => {
 
   })
 
+  describe('*At methods match *In equivalent', () => {
+    it('getAt matches getIn', () => {
+      var m1 = fromJS({x:{a:1,b:2,c:3, list: ['a','b','c']}});
+      expect(m1.getAt('x.b')).toEqual(m1.getIn(['x', 'b']));
+      expect(m1.getAt('x.list.1')).toEqual(m1.getIn(['x', 'list', 1]));
+    });
+
+    it('setAt matches setIn', () => {
+      var m1 = fromJS({x:{a:1,b:2,c:3, list: ['a','b','c']}});
+      expect(
+        m1.setAt('x.b', 123).setAt('x.list.1', 'B').toJS()
+      ).toEqual(
+        m1.setIn(['x', 'b'], 123).setIn(['x', 'list', 1], 'B').toJS()
+      );
+    });
+
+    it('hasAt matches hasIn', () => {
+      var m1 = fromJS({x:{a:1,b:2,c:3, list: ['a','b','c']}});
+      expect(m1.hasAt('x.b')).toEqual(m1.hasIn(['x', 'b']));
+      expect(m1.hasAt('x.list.0')).toEqual(m1.hasIn(['x', 'list', 0]));
+
+      expect(() => m1.hasAt('x.list.0.a')).toThrow()
+      expect(() => m1.hasIn(['x', 'list', 0, 'a'])).toThrow()
+    });
+
+    it('updateAt matches updateIn', () => {
+      var m1 = fromJS({x:{a:1,b:2,c:3}});
+      expect(
+        m1.updateAt('x.b', v => v + v).toJS()
+      ).toEqual(m1.updateIn(['x', 'b'], v => v + v).toJS());
+    });
+
+    it('mergeAt matches mergeIn', () => {
+      var m1 = fromJS({x:{a:1,b:2,c:3}});
+      var m2 = fromJS({d:10,b:20,e:30});
+      expect(
+        m1.mergeAt('x.b', m2).toJS()
+      ).toEqual(m1.mergeIn(['x', 'b'], m2).toJS());
+    });
+
+    it('mergeDeepAt matches mergeDeepIn', () => {
+      var m1 = fromJS({x:{a:1,b:2,c:3}});
+      var m2 = fromJS({d:10,b:20,e:30});
+      expect(
+        m1.mergeDeepAt('x.b', m2).toJS()
+      ).toEqual(m1.mergeDeepIn(['x', 'b'], m2).toJS());
+    });
+  });
+
 })
